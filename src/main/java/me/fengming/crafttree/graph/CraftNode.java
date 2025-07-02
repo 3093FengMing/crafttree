@@ -1,6 +1,5 @@
 package me.fengming.crafttree.graph;
 
-import com.google.common.base.MoreObjects;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
@@ -144,9 +143,7 @@ public class CraftNode {
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("id", id)
-                .toString();
+        return "{id='" + id + '}';
     }
 
     @Override

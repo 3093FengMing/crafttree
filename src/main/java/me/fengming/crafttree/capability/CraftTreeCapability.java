@@ -26,20 +26,20 @@ public class CraftTreeCapability implements INBTSerializable<CompoundTag> {
         return this.trackingNodes;
     }
 
-    public void addTrackingNode(CraftNode node) {
-        this.trackingNodes.add(node);
+    public boolean addTrackingNode(CraftNode node) {
+        return this.trackingNodes.add(node);
     }
 
-    public void addUnlockedNode(CraftNode node) {
-        this.unlockedNodes.add(node);
+    public boolean addUnlockedNode(CraftNode node) {
+        return this.unlockedNodes.add(node);
     }
 
-    public void removeTrackingNode(CraftNode node) {
-        this.trackingNodes.remove(node);
+    public boolean removeTrackingNode(CraftNode node) {
+        return this.trackingNodes.remove(node);
     }
 
-    public void removeUnlockedNode(CraftNode node) {
-        this.unlockedNodes.remove(node);
+    public boolean removeUnlockedNode(CraftNode node) {
+        return this.unlockedNodes.remove(node);
     }
 
     @Override

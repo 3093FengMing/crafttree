@@ -23,13 +23,20 @@ public class CraftTreeConfig {
             var json = JsonParser.parseReader(Files.newBufferedReader(path.resolve("config.json"), StandardCharsets.UTF_8)).getAsJsonObject();
             JsonArray array = json.getAsJsonArray("trees");
             for (JsonElement element : array) {
-                Path treePath = path.resolve(element.getAsString());
+                Path treePath = path.resolve(element.getAsString() + ".json");
                 var tree = JsonParser.parseReader(Files.newBufferedReader(treePath, StandardCharsets.UTF_8)).getAsJsonObject();
                 trees.add(CraftNodeTree.load(tree));
             }
         } catch (Exception e) {
             CraftTree.LOGGER.error("Error parsing config file", e);
         }
+    }
+
+    public static List<String> getIds() {
+        return trees.stream()
+                .map(CraftNodeTree::getNodes)
+                .flatMap(e -> e.stream().map(CraftNode::getId))
+                .toList();
     }
 
     public static CraftNode getNode(String id) {

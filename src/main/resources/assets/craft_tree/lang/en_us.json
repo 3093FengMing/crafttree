@@ -1,0 +1,8 @@
+{
+  "command.craft_tree.add_unlock.query.unlocked": "Unlocked: %s",
+  "command.craft_tree.add_unlock.query.tracking": "Tracking: %s",
+  "command.craft_tree.add_unlock.success": "%s has succeed to unlock %s",
+  "command.craft_tree.add_unlock.failed": "%s has already unlocked %s",
+  "command.craft_tree.remove_unlock.success": "%s's %s has locked",
+  "command.craft_tree.remove_unlock.failed": "%s's %s has already unlocked"
+}

@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -25,6 +26,10 @@ public class CraftNodeTree {
             tree.id2Node.put(node.getId(), node);
         }
         return tree;
+    }
+
+    public Collection<CraftNode> getNodes() {
+        return id2Node.values();
     }
 
     public CraftNode getNode(String id) {

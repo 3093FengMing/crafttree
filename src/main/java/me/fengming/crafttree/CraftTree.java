@@ -5,7 +5,14 @@ import me.fengming.crafttree.capability.CraftTreeCapability;
 import me.fengming.crafttree.capability.CraftTreeCapabilityProvider;
 import me.fengming.crafttree.capability.ModCapabilities;
 import me.fengming.crafttree.client.CraftTipOverlay;
+import me.fengming.crafttree.command.CraftNodeArgument;
+import me.fengming.crafttree.command.CraftTreeCommand;
 import me.fengming.crafttree.config.CraftTreeConfig;
+import me.fengming.crafttree.network.ModMessages;
+import net.minecraft.commands.synchronization.ArgumentTypeInfo;
+import net.minecraft.commands.synchronization.ArgumentTypeInfos;
+import net.minecraft.commands.synchronization.SingletonArgumentInfo;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
@@ -13,14 +20,17 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
 /**
@@ -33,18 +43,30 @@ public class CraftTree {
 
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MODID);
 
+    public static final DeferredRegister<ArgumentTypeInfo<?, ?>> COMMAND_ARGUMENT_TYPES = DeferredRegister.create(Registries.COMMAND_ARGUMENT_TYPE, MODID);
+    public static final RegistryObject<SingletonArgumentInfo<CraftNodeArgument>> CRAFT_NODE_ARGUMENT = COMMAND_ARGUMENT_TYPES.register("craft_node", () -> ArgumentTypeInfos.registerByClass(CraftNodeArgument.class, SingletonArgumentInfo.contextFree(CraftNodeArgument::create)));
+
+
     public CraftTree(FMLJavaModLoadingContext context) {
         IEventBus modEventBus = context.getModEventBus();
         ITEMS.register(modEventBus);
+        COMMAND_ARGUMENT_TYPES.register(modEventBus);
 
-        CraftTreeConfig.load(FMLPaths.CONFIGDIR.get().resolve("craft_tree"));
+        CraftTreeConfig.load(FMLPaths.CONFIGDIR.get().resolve(MODID));
+        modEventBus.addListener(CraftTree::commonSetup);
+    }
+
+    public static void commonSetup(final FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            ModMessages.register();
+        });
     }
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
+    public static class ModClientEvents {
         @SubscribeEvent
         public static void registerOverlays(RegisterGuiOverlaysEvent event) {
-            event.registerAboveAll("thirst", CraftTipOverlay.HUD_CRAFT_TIP);
+            event.registerAboveAll("craft_tip", CraftTipOverlay.HUD_CRAFT_TIP);
         }
     }
 
@@ -59,8 +81,13 @@ public class CraftTree {
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeCommonEvents {
         @SubscribeEvent
+        public static void registerCommand(RegisterCommandsEvent event) {
+            CraftTreeCommand.register(event.getDispatcher());
+        }
+
+        @SubscribeEvent
         public static void onAttachCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
-            event.addCapability(ResourceLocation.fromNamespaceAndPath(MODID, "concrete_count"), new CraftTreeCapabilityProvider());
+            event.addCapability(ResourceLocation.fromNamespaceAndPath(MODID, "craft_tree"), new CraftTreeCapabilityProvider());
         }
 
         @SubscribeEvent

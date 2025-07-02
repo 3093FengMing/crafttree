@@ -1,7 +1,6 @@
 package me.fengming.crafttree.command;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import me.fengming.crafttree.capability.ModCapabilities;
 import me.fengming.crafttree.config.CraftTreeConfig;
@@ -17,22 +16,41 @@ import net.minecraft.world.entity.player.Player;
  */
 public class CraftTreeCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        var targets = Commands.argument("targets", EntityArgument.entity());
-        targets
-                .then(Commands.literal("query")
+        var targets = Commands.argument("target", EntityArgument.entity());
+        targets.then(Commands.literal("query")
                         .executes(ctx -> query(EntityArgument.getEntity(ctx, "target"))))
                 .then(Commands.literal("addUnlock")
-                        .then(Commands.argument("id", StringArgumentType.string()))
-                        .executes(ctx -> addUnlock(EntityArgument.getEntity(ctx, "target"), StringArgumentType.getString(ctx, "id"))))
+                        .then(Commands.argument("id", CraftNodeArgument.create())
+                                .executes(ctx -> addUnlock(
+                                        EntityArgument.getEntity(ctx, "target"),
+                                        CraftNodeArgument.getQuestId(ctx, "id")
+                                ))
+                        )
+                )
                 .then(Commands.literal("removeUnlock")
-                        .then(Commands.argument("id", StringArgumentType.string()))
-                        .executes(ctx -> removeUnlock(EntityArgument.getEntity(ctx, "target"), StringArgumentType.getString(ctx, "id"))))
+                        .then(Commands.argument("id", CraftNodeArgument.create())
+                                .executes(ctx -> removeUnlock(
+                                        EntityArgument.getEntity(ctx, "target"),
+                                        CraftNodeArgument.getQuestId(ctx, "id")
+                                ))
+                        )
+                )
                 .then(Commands.literal("addTrack")
-                        .then(Commands.argument("id", StringArgumentType.string()))
-                        .executes(ctx -> addTrack(EntityArgument.getEntity(ctx, "target"), StringArgumentType.getString(ctx, "id"))))
+                        .then(Commands.argument("id", CraftNodeArgument.create())
+                                .executes(ctx -> addTrack(
+                                        EntityArgument.getEntity(ctx, "target"),
+                                        CraftNodeArgument.getQuestId(ctx, "id")
+                                ))
+                        )
+                )
                 .then(Commands.literal("removeTrack")
-                        .then(Commands.argument("id", StringArgumentType.string()))
-                        .executes(ctx -> removeTrack(EntityArgument.getEntity(ctx, "target"), StringArgumentType.getString(ctx, "id"))));
+                        .then(Commands.argument("id", CraftNodeArgument.create())
+                                .executes(ctx -> removeTrack(
+                                        EntityArgument.getEntity(ctx, "target"),
+                                        CraftNodeArgument.getQuestId(ctx, "id")
+                                ))
+                        )
+                );
 
         LiteralArgumentBuilder<CommandSourceStack> command = Commands.literal("crafttree")
                 .requires(stack -> stack.hasPermission(2))
@@ -44,7 +62,8 @@ public class CraftTreeCommand {
     private static int query(Entity entity) {
         if (entity instanceof Player player) {
             var cap = ModCapabilities.getCraftTree(player);
-            player.sendSystemMessage(Component.literal(cap.getUnlockedNodes().toString()));
+            player.sendSystemMessage(Component.translatable("command.craft_tree.add_unlock.query.unlocked", cap.getUnlockedNodes().toString()));
+            player.sendSystemMessage(Component.translatable("command.craft_tree.add_unlock.query.tracking", cap.getTrackingNodes().toString()));
             return 0;
         }
         return 1;
@@ -54,7 +73,8 @@ public class CraftTreeCommand {
         if (entity instanceof Player player) {
             var cap = ModCapabilities.getCraftTree(player);
             var node = CraftTreeConfig.getNode(nodeId);
-            cap.addUnlockedNode(node);
+            boolean bl = cap.addUnlockedNode(node);
+            player.sendSystemMessage(Component.translatable("command.craft_tree.add_unlock." + (bl ? "success" : "failed"), entity.getDisplayName(), nodeId));
             ModCapabilities.syncWithPlayer(player);
             return 0;
         }
@@ -65,7 +85,8 @@ public class CraftTreeCommand {
         if (entity instanceof Player player) {
             var cap = ModCapabilities.getCraftTree(player);
             var node = CraftTreeConfig.getNode(nodeId);
-            cap.removeUnlockedNode(node);
+            boolean bl = cap.removeUnlockedNode(node);
+            player.sendSystemMessage(Component.translatable("command.craft_tree.remove_unlock." + (bl ? "success" : "failed"), entity.getDisplayName(), nodeId));
             ModCapabilities.syncWithPlayer(player);
             return 0;
         }
