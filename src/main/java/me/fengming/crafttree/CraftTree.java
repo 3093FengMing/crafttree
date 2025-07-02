@@ -14,6 +14,7 @@ import net.minecraft.commands.synchronization.ArgumentTypeInfos;
 import net.minecraft.commands.synchronization.SingletonArgumentInfo;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
@@ -80,6 +81,13 @@ public class CraftTree {
 
     @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeCommonEvents {
+        @SubscribeEvent
+        public static void onPlayerLogIn(PlayerEvent.PlayerLoggedInEvent event) {
+            if (event.getEntity() instanceof ServerPlayer sp) {
+                ModCapabilities.syncWithPlayer(sp);
+            }
+        }
+
         @SubscribeEvent
         public static void registerCommand(RegisterCommandsEvent event) {
             CraftTreeCommand.register(event.getDispatcher());
