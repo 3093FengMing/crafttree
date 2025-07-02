@@ -13,7 +13,8 @@ import java.util.Map;
 public class CraftNodeTree {
     private final Map<String, CraftNode> id2Node = Maps.newHashMap();
 
-    private CraftNodeTree() {}
+    private CraftNodeTree() {
+    }
 
     public static CraftNodeTree load(JsonObject jsonObject) {
         CraftNodeTree tree = new CraftNodeTree();
@@ -24,6 +25,10 @@ public class CraftNodeTree {
             tree.id2Node.put(node.getId(), node);
         }
         return tree;
+    }
+
+    public CraftNode getNode(String id) {
+        return id2Node.get(id);
     }
 
     public CraftNode getOrCreate(String id) {

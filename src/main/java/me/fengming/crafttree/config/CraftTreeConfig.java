@@ -2,6 +2,7 @@ package me.fengming.crafttree.config;
 
 import com.google.gson.*;
 import me.fengming.crafttree.CraftTree;
+import me.fengming.crafttree.graph.CraftNode;
 import me.fengming.crafttree.graph.CraftNodeTree;
 
 import java.nio.charset.StandardCharsets;
@@ -29,5 +30,13 @@ public class CraftTreeConfig {
         } catch (Exception e) {
             CraftTree.LOGGER.error("Error parsing config file", e);
         }
+    }
+
+    public static CraftNode getNode(String id) {
+        for (CraftNodeTree tree : trees) {
+            CraftNode node = tree.getNode(id);
+            if (node != null) return node;
+        }
+        return null;
     }
 }

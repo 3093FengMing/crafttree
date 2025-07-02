@@ -1,5 +1,6 @@
 package me.fengming.crafttree.graph;
 
+import com.google.common.base.MoreObjects;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
@@ -20,6 +21,7 @@ public class CraftNode {
 
     private CraftNode parent = null;
     private List<CraftNode> children = new ArrayList<>();
+    private List<String> tags = new ArrayList<>();
     private Component name;
     private Component description;
     private ItemStack icon;
@@ -33,6 +35,14 @@ public class CraftNode {
         JsonElement id = jsonObject.get("id");
         if (id == null) return null;
         CraftNode node = new CraftNode(tree, id.getAsString());
+        JsonElement tags = jsonObject.get("tags");
+        if (tags == null) {
+            node.setTags(List.of());
+        } else {
+            for (JsonElement element : tags.getAsJsonArray()) {
+                node.addTag(element.getAsString());
+            }
+        }
         JsonElement parentId = jsonObject.get("parent");
         if (parentId == null) {
             node.setParent(null);
@@ -68,6 +78,22 @@ public class CraftNode {
         return node;
     }
 
+    public Component getName() {
+        return this.name;
+    }
+
+    public Component getDescription() {
+        return this.description;
+    }
+
+    public ItemStack getIcon() {
+        return this.icon;
+    }
+
+    public CraftNode getParent() {
+        return this.parent;
+    }
+
     public String getId() {
         return this.id;
     }
@@ -96,8 +122,31 @@ public class CraftNode {
         this.children.add(child);
     }
 
+    public List<CraftNode> getChildren() {
+        return this.children;
+    }
+
+    public List<String> getTags() {
+        return this.tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public void addTag(String tag) {
+        this.tags.add(tag);
+    }
+
     public boolean isRoot() {
         return parent == null;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .toString();
     }
 
     @Override

@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "me.fengming.crafttree.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "crafttree.refmap.json",
+  "refmap": "craft_tree.refmap.json",
   "mixins": [
   ],
   "client": [
