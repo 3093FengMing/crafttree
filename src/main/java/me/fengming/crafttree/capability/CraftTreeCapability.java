@@ -31,6 +31,7 @@ public class CraftTreeCapability implements INBTSerializable<CompoundTag> {
     }
 
     public boolean addUnlockedNode(CraftNode node) {
+        node.unlock();
         return this.unlockedNodes.add(node);
     }
 

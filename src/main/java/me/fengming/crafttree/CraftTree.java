@@ -95,7 +95,7 @@ public class CraftTree {
 
         @SubscribeEvent
         public static void onAttachCapabilityEvent(AttachCapabilitiesEvent<Entity> event) {
-            event.addCapability(ResourceLocation.fromNamespaceAndPath(MODID, "craft_tree"), new CraftTreeCapabilityProvider());
+            event.addCapability(ResourceLocation.tryBuild(MODID, "craft_tree"), new CraftTreeCapabilityProvider());
         }
 
         @SubscribeEvent

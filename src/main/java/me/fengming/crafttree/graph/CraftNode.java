@@ -10,20 +10,23 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * @author FengMing
  */
 public class CraftNode {
+    private final List<Consumer<CraftNode>> listeners = new ArrayList<>();
     private final CraftNodeTree tree;
     private final String id;
 
+    private boolean unlocked = false;
     private CraftNode parent = null;
     private List<CraftNode> children = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
     private Component name;
     private Component description;
-    private ItemStack icon;
+    private ItemStack goal;
 
     public CraftNode(CraftNodeTree tree, String id) {
         this.tree = tree;
@@ -68,11 +71,11 @@ public class CraftNode {
         } else {
             node.setDescription(Component.Serializer.fromJson(description));
         }
-        JsonElement icon = jsonObject.get("icon");
+        JsonElement icon = jsonObject.get("goal");
         if (icon == null) {
-            node.setIcon(ItemStack.EMPTY);
+            node.setGoal(ItemStack.EMPTY);
         } else {
-            node.setIcon(ItemStack.CODEC.parse(JsonOps.INSTANCE, icon).getOrThrow(false, CraftTree.LOGGER::error));
+            node.setGoal(ItemStack.CODEC.parse(JsonOps.INSTANCE, icon).getOrThrow(false, CraftTree.LOGGER::error));
         }
         return node;
     }
@@ -85,8 +88,8 @@ public class CraftNode {
         return this.description;
     }
 
-    public ItemStack getIcon() {
-        return this.icon;
+    public ItemStack getGoal() {
+        return this.goal;
     }
 
     public CraftNode getParent() {
@@ -101,8 +104,8 @@ public class CraftNode {
         this.name = name;
     }
 
-    public void setIcon(ItemStack icon) {
-        this.icon = icon;
+    public void setGoal(ItemStack goal) {
+        this.goal = goal;
     }
 
     public void setDescription(Component description) {
@@ -141,6 +144,14 @@ public class CraftNode {
         return parent == null;
     }
 
+    public void unlock() {
+        this.unlocked = true;
+    }
+
+    public boolean match(ItemStack item) {
+        return item.is(goal.getItem());
+    }
+
     @Override
     public String toString() {
         return "{id='" + id + '}';
@@ -151,11 +162,11 @@ public class CraftNode {
         if (this == object) return true;
         if (object == null || getClass() != object.getClass()) return false;
         CraftNode craftNode = (CraftNode) object;
-        return Objects.equals(id, craftNode.id) && Objects.equals(parent, craftNode.parent) && Objects.equals(children, craftNode.children) && Objects.equals(name, craftNode.name) && Objects.equals(description, craftNode.description) && Objects.equals(icon, craftNode.icon);
+        return Objects.equals(id, craftNode.id) && Objects.equals(parent, craftNode.parent) && Objects.equals(children, craftNode.children) && Objects.equals(name, craftNode.name) && Objects.equals(description, craftNode.description) && Objects.equals(goal, craftNode.goal);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), parent, children, name, description, icon);
+        return Objects.hash(getId(), parent, children, name, description, goal);
     }
 }

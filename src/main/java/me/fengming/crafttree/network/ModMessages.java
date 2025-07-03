@@ -18,7 +18,7 @@ public class ModMessages {
 
     public static void register() {
         SimpleChannel network = NetworkRegistry.ChannelBuilder
-                .named(ResourceLocation.fromNamespaceAndPath(CraftTree.MODID, "messages"))
+                .named(ResourceLocation.tryBuild(CraftTree.MODID, "messages"))
                 .networkProtocolVersion(() -> "1.0")
                 .clientAcceptedVersions(s -> true)
                 .serverAcceptedVersions(s -> true)
